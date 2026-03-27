@@ -21,7 +21,7 @@ local function Run(Index)
     while tick() - StartTime < 8 do
         Remote:FireServer(Names[Index])
 
-        Index += 1
+        Index = Index + 1
         if Index > #Names then
             Index = 1
         end
@@ -32,14 +32,22 @@ local function Run(Index)
     return Index - 1
 end
 
+-- 🔥 QUEUE THIS SCRIPT AGAIN
+local QueueScript = [[
+loadstring(game:HttpGet("https://pastebin.com/raw/YOUR_SCRIPT_ID"))()
+]]
+
 -- FIRST EXECUTION (no run)
 if not TeleportData.started then
+    queue_on_teleport(QueueScript)
+
     TeleportService:TeleportToPlaceInstance(
         game.PlaceId,
         game.JobId,
         LocalPlayer,
         {started = true, index = 0}
     )
+
     return
 end
 
@@ -50,6 +58,8 @@ if StartIndex > #Names then
 end
 
 local NewIndex = Run(StartIndex)
+
+queue_on_teleport(QueueScript)
 
 TeleportService:TeleportToPlaceInstance(
     game.PlaceId,
