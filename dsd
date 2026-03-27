@@ -1,0 +1,87 @@
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TeleportService = game:GetService("TeleportService")
+
+print("Script booted")
+
+local LocalPlayer = Players.LocalPlayer
+local Remote = ReplicatedStorage:WaitForChild("starter")
+local StatsFolder = LocalPlayer:WaitForChild("stats")
+
+local TeleportData = TeleportService:GetLocalPlayerTeleportData() or {}
+print("TeleportData:", TeleportData)
+
+local Names = {}
+for _, v in ipairs(StatsFolder:GetChildren()) do
+    table.insert(Names, v.Name)
+end
+
+table.sort(Names)
+
+print("Names count:", #Names)
+
+local function Run(Index)
+    print("Run start:", Index)
+
+    local StartTime = tick()
+
+    while tick() - StartTime < 8 do
+        print("Firing:", Names[Index])
+        Remote:FireServer(Names[Index])
+
+        Index = Index + 1
+        if Index > #Names then
+            Index = 1
+        end
+
+        task.wait(0.1)
+    end
+
+    print("Run end:", Index - 1)
+    return Index - 1
+end
+
+-- prepare queue script
+local QueueScript = [[
+loadstring(game:HttpGet("https://pastebin.com/raw/REPLACE_THIS"))()
+]]
+
+-- FIRST RUN
+if not TeleportData.started then
+    print("First run → queue + teleport")
+
+    pcall(function()
+        queue_on_teleport(QueueScript)
+    end)
+
+    TeleportService:TeleportToPlaceInstance(
+        game.PlaceId,
+        nil,
+        LocalPlayer,
+        {started = true, index = 0}
+    )
+
+    return
+end
+
+print("Rejoined → running")
+
+local StartIndex = (TeleportData.index or 0) + 1
+if StartIndex > #Names then
+    StartIndex = 1
+end
+
+local NewIndex = Run(StartIndex)
+
+print("Queue next run with index:", NewIndex)
+
+pcall(function()
+    queue_on_teleport(QueueScript)
+end)
+
+TeleportService:TeleportToPlaceInstance(
+    game.PlaceId,
+    nil,
+    LocalPlayer,
+    {started = true, index = NewIndex}
+)
